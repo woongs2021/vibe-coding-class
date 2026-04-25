@@ -25,7 +25,8 @@ export function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);   // 응답 대기 중 점 애니메이션
+  const [isStreaming, setIsStreaming] = useState(false); // 스트리밍 중 입력 비활성화
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +42,7 @@ export function Chatbot() {
 
   const sendMessage = async () => {
     const text = input.trim();
-    if (!text || isTyping) return;
+    if (!text || isStreaming) return;
 
     const userMsg: Message = { id: nextId++, role: "user", text };
     const nextMessages = [...messages, userMsg];
@@ -49,11 +50,11 @@ export function Chatbot() {
     setMessages(nextMessages);
     setInput("");
     setIsTyping(true);
+    setIsStreaming(true);
 
     try {
-      // 초기 AI 인사 메시지는 history에서 제외 (role: "ai"이지만 user 입력이 아님)
       const history: ChatMessage[] = nextMessages
-        .slice(1) // 첫 번째 AI 인사 메시지 제외
+        .slice(1)
         .map((m) => ({ role: m.role, text: m.text }));
 
       const res = await fetch("/api/chat", {
@@ -62,27 +63,56 @@ export function Chatbot() {
         body: JSON.stringify({ messages: history }),
       });
 
-      const data = await res.json();
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        const errMsg = typeof errData.error === "string" && errData.error !== "gemini_error"
+          ? errData.error
+          : "답변을 가져오지 못했어요. 잠시 후 다시 시도해줘.";
+        throw new Error(errMsg);
+      }
+      if (!res.body) throw new Error("fetch failed");
 
-      const aiMsg: Message = {
-        id: nextId++,
-        role: "ai",
-        text: res.ok && data.text
-          ? data.text
-          : "답변을 가져오지 못했어요. 잠시 후 다시 시도해줘.",
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    } catch {
+      const aiId = nextId++;
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let isFirstChunk = true;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        if (isFirstChunk) {
+          isFirstChunk = false;
+          setIsTyping(false);
+          setMessages((prev) => [...prev, { id: aiId, role: "ai", text: chunk }]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === aiId ? { ...m, text: m.text + chunk } : m))
+          );
+        }
+      }
+
+      if (isFirstChunk) {
+        setMessages((prev) => [
+          ...prev,
+          { id: aiId, role: "ai", text: "답변을 가져오지 못했어요. 잠시 후 다시 시도해줘." },
+        ]);
+      }
+    } catch (err) {
+      const errText = err instanceof Error ? err.message : "답변을 가져오지 못했어요. 잠시 후 다시 시도해줘.";
       setMessages((prev) => [
         ...prev,
         {
           id: nextId++,
           role: "ai",
-          text: "답변을 가져오지 못했어요. 잠시 후 다시 시도해줘.",
+          text: errText,
         },
       ]);
     } finally {
       setIsTyping(false);
+      setIsStreaming(false);
     }
   };
 
@@ -99,7 +129,7 @@ export function Chatbot() {
           style={{ maxHeight: "min(540px, calc(100dvh - 96px))" }}
         >
           {/* 헤더 */}
-          <div className="flex items-center justify-between border-b border-zinc-100 bg-zinc-900 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3" style={{ backgroundColor: "#1E3932" }}>
             <div className="flex items-center gap-2">
               <span className="text-base">🤖</span>
               <span className="text-sm font-semibold text-white">AI 챗봇</span>
@@ -167,7 +197,7 @@ export function Chatbot() {
               />
               <button
                 onClick={sendMessage}
-                disabled={!input.trim() || isTyping}
+                disabled={!input.trim() || isStreaming}
                 aria-label="보내기"
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-white transition-colors hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -190,7 +220,11 @@ export function Chatbot() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "챗봇 닫기" : "챗봇 열기"}
-        className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 md:right-6"
+        className="fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full text-white transition-transform hover:scale-105 active:scale-95 md:right-6"
+        style={{
+          backgroundColor: "#00754A",
+          boxShadow: "0 0 6px rgba(0,0,0,0.24), 0 8px 12px rgba(0,0,0,0.14)",
+        }}
       >
         {open ? (
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
