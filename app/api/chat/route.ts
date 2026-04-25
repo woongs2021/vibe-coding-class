@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -13,26 +13,44 @@ export async function POST(req: NextRequest) {
     const { messages }: { messages: ChatMessage[] } = await req.json();
 
     if (!messages || messages.length === 0) {
-      return NextResponse.json({ error: "messages required" }, { status: 400 });
+      return new Response(JSON.stringify({ error: "messages required" }), { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    // 마지막 메시지를 제외한 이전 대화를 history로 구성
     const history = messages.slice(0, -1).map((msg) => ({
       role: msg.role === "user" ? "user" : "model",
       parts: [{ text: msg.text }],
     }));
 
     const lastMessage = messages[messages.length - 1];
-
     const chat = model.startChat({ history });
-    const result = await chat.sendMessage(lastMessage.text);
-    const text = result.response.text();
+    const result = await chat.sendMessageStream(lastMessage.text);
 
-    return NextResponse.json({ text });
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        for await (const chunk of result.stream) {
+          const text = chunk.text();
+          if (text) {
+            controller.enqueue(encoder.encode(text));
+          }
+        }
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+      },
+    });
   } catch (err) {
     console.error("[chat] Gemini error:", err);
-    return NextResponse.json({ error: "gemini_error" }, { status: 500 });
+    const message = err instanceof Error && err.message.includes("429")
+      ? "API 할당량이 초과되었어요. 잠시 후 다시 시도해 주세요."
+      : "gemini_error";
+    return new Response(JSON.stringify({ error: message }), { status: 500 });
   }
 }

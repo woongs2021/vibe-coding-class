@@ -43,106 +43,181 @@ export function HomeContact() {
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    height: "48px",
+    width: "100%",
+    borderRadius: "8px",
+    border: "1px solid rgba(0,0,0,0.16)",
+    backgroundColor: "#ffffff",
+    padding: "0 14px",
+    fontSize: "15px",
+    color: "rgba(0,0,0,0.87)",
+    letterSpacing: "-0.01em",
+    outline: "none",
+    transition: "border-color 0.2s ease",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: "13px",
+    fontWeight: 600,
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+    color: "rgba(0,0,0,0.58)",
+    display: "block",
+    marginBottom: "6px",
+  };
+
   return (
     <section
       id="contact"
       aria-labelledby="contact-title"
-      className="grid gap-6 md:grid-cols-[140px_1fr]"
+      style={{ backgroundColor: "#f2f0eb" }}
     >
-      <h2
-        id="contact-title"
-        className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-500"
-      >
-        Contact
-      </h2>
-
-      <div className="space-y-6">
-        <div className="space-y-1">
-          <p className="text-lg font-semibold text-zinc-900">함께 일하기</p>
-          <p className="text-sm text-zinc-500">
-            프로젝트 문의·강의 협업, 편하게 보내주세요
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label
-                htmlFor="contact-name"
-                className="text-sm font-medium text-zinc-700"
-              >
-                이름
-              </label>
-              <input
-                id="contact-name"
-                name="name"
-                type="text"
-                placeholder="홍길동"
-                value={form.name}
-                onChange={handleChange}
-                className="h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-colors focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label
-                htmlFor="contact-email"
-                className="text-sm font-medium text-zinc-700"
-              >
-                이메일
-              </label>
-              <input
-                id="contact-email"
-                name="email"
-                type="email"
-                placeholder="hello@example.com"
-                value={form.email}
-                onChange={handleChange}
-                className="h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-colors focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label
-              htmlFor="contact-message"
-              className="text-sm font-medium text-zinc-700"
-            >
-              메시지
-            </label>
-            <textarea
-              id="contact-message"
-              name="message"
-              rows={5}
-              placeholder="안녕하세요, 프로젝트 관련해서 문의드리고 싶습니다."
-              value={form.message}
-              onChange={handleChange}
-              className="w-full resize-none rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-colors focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-            />
-          </div>
-
-          <div className="flex flex-col gap-3">
+      <div className="mx-auto max-w-6xl px-6 py-20">
+        <div className="grid gap-16 md:grid-cols-2">
+          {/* 왼쪽 — 소개 */}
+          <div className="flex flex-col gap-6">
             <div>
+              <p
+                style={{
+                  color: "#00754A",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  marginBottom: "8px",
+                }}
+              >
+                Contact
+              </p>
+              <h2
+                id="contact-title"
+                style={{
+                  color: "#006241",
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.2,
+                }}
+                className="text-3xl font-semibold"
+              >
+                함께 일하기
+              </h2>
+            </div>
+            <p
+              style={{
+                color: "rgba(0,0,0,0.58)",
+                fontSize: "19px",
+                letterSpacing: "-0.01em",
+                lineHeight: 1.75,
+              }}
+            >
+              프로젝트 문의·강의 협업, 편하게 보내주세요.
+              <br />
+              빠르게 답장드릴게요.
+            </p>
+            <div className="flex flex-col gap-3">
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: "12px",
+                  padding: "16px 20px",
+                  boxShadow: "0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)",
+                }}
+              >
+                <p style={{ color: "rgba(0,0,0,0.58)", fontSize: "13px", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "4px" }}>전화</p>
+                <p style={{ color: "rgba(0,0,0,0.87)", fontWeight: 600, letterSpacing: "-0.01em", fontSize: "17px" }}>010-1234-5678</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 오른쪽 — 폼 */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="contact-name" style={labelStyle}>이름</label>
+                <input
+                  id="contact-name"
+                  name="name"
+                  type="text"
+                  placeholder="홍길동"
+                  value={form.name}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  onFocus={(e) => (e.target.style.borderColor = "#00754A")}
+                  onBlur={(e) => (e.target.style.borderColor = "rgba(0,0,0,0.16)")}
+                />
+              </div>
+              <div>
+                <label htmlFor="contact-email" style={labelStyle}>이메일</label>
+                <input
+                  id="contact-email"
+                  name="email"
+                  type="email"
+                  placeholder="hello@example.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  onFocus={(e) => (e.target.style.borderColor = "#00754A")}
+                  onBlur={(e) => (e.target.style.borderColor = "rgba(0,0,0,0.16)")}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="contact-message" style={labelStyle}>메시지</label>
+              <textarea
+                id="contact-message"
+                name="message"
+                rows={5}
+                placeholder="안녕하세요, 프로젝트 관련해서 문의드리고 싶습니다."
+                value={form.message}
+                onChange={handleChange}
+                style={{
+                  ...inputStyle,
+                  height: "auto",
+                  padding: "14px",
+                  resize: "none",
+                }}
+                onFocus={(e) => (e.target.style.borderColor = "#00754A")}
+                onBlur={(e) => (e.target.style.borderColor = "rgba(0,0,0,0.16)")}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3">
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="inline-flex h-10 items-center rounded-full border border-zinc-900 bg-zinc-900 px-6 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  alignSelf: "flex-start",
+                  backgroundColor: "#00754A",
+                  color: "#ffffff",
+                  borderRadius: "50px",
+                  padding: "7px 32px",
+                  height: "44px",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  letterSpacing: "-0.01em",
+                  border: "1px solid #00754A",
+                  transition: "all 0.2s ease",
+                  cursor: status === "loading" ? "not-allowed" : "pointer",
+                }}
               >
                 {status === "loading" ? "보내는 중..." : "보내기"}
               </button>
-            </div>
 
-            {status === "success" && (
-              <p className="text-sm text-emerald-600">
-                메일이 전송됐어요. 곧 답장드릴게요 🙂
-              </p>
-            )}
-            {status === "error" && (
-              <p className="text-sm text-red-500">
-                전송에 실패했어요. 잠시 후 다시 시도해주세요.
-              </p>
-            )}
-          </div>
-        </form>
+              {status === "success" && (
+                <p style={{ color: "#00754A", fontSize: "14px", letterSpacing: "-0.01em", fontWeight: 500 }}>
+                  메일이 전송됐어요. 곧 답장드릴게요 🙂
+                </p>
+              )}
+              {status === "error" && (
+                <p style={{ color: "#c82014", fontSize: "14px", letterSpacing: "-0.01em" }}>
+                  전송에 실패했어요. 잠시 후 다시 시도해주세요.
+                </p>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </section>
   );
