@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { WORKS } from "@/lib/works-data";
+import { WorkThumbnail } from "@/components/works/work-thumbnail";
 
 export function HomeWorks() {
   return (
@@ -65,19 +65,7 @@ export function HomeWorks() {
                   "0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)",
               }}
             >
-              <div
-                className="relative aspect-video w-full overflow-hidden"
-                style={{ backgroundColor: "#f2f0eb" }}
-              >
-                <Image
-                  src={work.thumbnail}
-                  alt={work.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  style={{ opacity: 1, transition: "opacity 0.3s ease-in" }}
-                />
-              </div>
+              <WorkThumbnail slug={work.slug} title={work.title} />
               <div className="px-5 py-4">
                 <p
                   style={{

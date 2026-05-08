@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { WORKS } from "@/lib/works-data";
 import { BlurFade } from "@/components/ui/blur-fade";
+import { WorkThumbnail } from "@/components/works/work-thumbnail";
 
 export function generateStaticParams() {
   return WORKS.map((work) => ({ slug: work.slug }));
@@ -51,15 +51,8 @@ export default async function WorkDetailPage({ params }: Props) {
 
         {/* 히어로 이미지 */}
         <BlurFade delay={0.25} duration={0.55} direction="up">
-          <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100">
-            <Image
-              src={work.thumbnail}
-              alt={work.title}
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 1024px) 100vw, 1024px"
-            />
+          <div className="overflow-hidden rounded-2xl">
+            <WorkThumbnail slug={work.slug} title={work.title} size="hero" />
           </div>
         </BlurFade>
 
