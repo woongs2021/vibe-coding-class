@@ -1,6 +1,74 @@
-import Image from "next/image";
 import Link from "next/link";
 import { WORKS } from "@/lib/works-data";
+
+const THUMBNAIL_THEMES: Record<string, { bg: string; accent: string; label: string }> = {
+  "onboarding-ux-redesign": {
+    bg: "#1E3932",
+    accent: "rgba(255,255,255,0.12)",
+    label: "UX Research",
+  },
+  "saas-dashboard-ia": {
+    bg: "#00754A",
+    accent: "rgba(255,255,255,0.12)",
+    label: "Information Architecture",
+  },
+  "design-system": {
+    bg: "#006241",
+    accent: "rgba(255,255,255,0.12)",
+    label: "Design System",
+  },
+};
+
+function WorkThumbnail({ slug, title }: { slug: string; title: string }) {
+  const theme = THUMBNAIL_THEMES[slug] ?? {
+    bg: "#f2f0eb",
+    accent: "rgba(0,0,0,0.06)",
+    label: "Project",
+  };
+
+  return (
+    <div
+      className="relative flex aspect-video w-full items-end overflow-hidden p-5 transition-transform duration-300 group-hover:scale-[1.02]"
+      style={{ backgroundColor: theme.bg }}
+    >
+      {/* 배경 원형 장식 */}
+      <div
+        className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full"
+        style={{ backgroundColor: theme.accent }}
+      />
+      <div
+        className="pointer-events-none absolute -bottom-10 -left-4 h-28 w-28 rounded-full"
+        style={{ backgroundColor: theme.accent }}
+      />
+      {/* 레이블 + 프로젝트명 */}
+      <div className="relative z-10">
+        <p
+          style={{
+            color: "rgba(255,255,255,0.60)",
+            fontSize: "11px",
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            marginBottom: "4px",
+          }}
+        >
+          {theme.label}
+        </p>
+        <p
+          style={{
+            color: "#ffffff",
+            fontSize: "15px",
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
+            lineHeight: 1.3,
+          }}
+        >
+          {title}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function HomeWorks() {
   return (
@@ -65,19 +133,7 @@ export function HomeWorks() {
                   "0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)",
               }}
             >
-              <div
-                className="relative aspect-video w-full overflow-hidden"
-                style={{ backgroundColor: "#f2f0eb" }}
-              >
-                <Image
-                  src={work.thumbnail}
-                  alt={work.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  style={{ opacity: 1, transition: "opacity 0.3s ease-in" }}
-                />
-              </div>
+              <WorkThumbnail slug={work.slug} title={work.title} />
               <div className="px-5 py-4">
                 <p
                   style={{
